@@ -1,7 +1,11 @@
 {
+  "cli": {
+    "appVersionSource": "remote"
+  },
   "build": {
     "development": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "credentialsSource": "local"
     }
   }
 }

@@ -13,7 +13,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Use Node 18 (stable for Expo)
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 18
@@ -21,18 +21,24 @@ jobs:
       - name: Install JS dependencies
         run: npm install
 
-      - name: Ensure Expo CLI is installed
+      - name: Install Expo CLI
         run: npm install -g expo-cli
 
-      - name: Add Expo to project if missing
+      - name: Ensure Expo is installed in project
         run: |
           if ! npm list expo >/dev/null 2>&1; then
             npm install expo
           fi
 
       - name: Run Expo Prebuild (iOS)
+        run: npx expo prebuild --platform ios --clean --no-install
+
+      - name: Verify iOS folder exists
         run: |
-          npx expo prebuild --platform ios --clean
+          if [ ! -d "ios" ]; then
+            echo "❌ iOS folder was NOT created"
+            exit 1
+          fi
 
       - name: Install CocoaPods
         run: |
@@ -46,3 +52,4 @@ jobs:
           git add ios
           git commit -m "Add generated iOS folder" || echo "No changes to commit"
           git push
+

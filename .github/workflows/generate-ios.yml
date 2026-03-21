@@ -1,0 +1,41 @@
+name: Generate iOS Folder
+
+on:
+  workflow_dispatch:
+
+jobs:
+  generate-ios:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install JS dependencies
+        run: npm install
+
+      - name: Install Expo CLI
+        run: npm install -g expo-cli
+
+      - name: Run Expo Prebuild (iOS)
+        run: npx expo prebuild --platform ios --no-install
+
+      - name: Install CocoaPods
+        run: |
+          cd ios
+          pod install
+
+      - name: Commit generated iOS folder
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add ios
+          git commit -m "Add generated iOS folder" || echo "No changes to commit"
+          git push

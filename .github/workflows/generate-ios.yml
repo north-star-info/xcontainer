@@ -9,28 +9,35 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install Node
-        uses: actions/setup-node@v3
+      - name: Use Node 18 (stable for Expo)
+        uses: actions/setup-node@v4
         with:
           node-version: 18
 
       - name: Install JS dependencies
         run: npm install
 
-      - name: Install Expo CLI
+      - name: Ensure Expo CLI is installed
         run: npm install -g expo-cli
 
+      - name: Add Expo to project if missing
+        run: |
+          if ! npm list expo >/dev/null 2>&1; then
+            npm install expo
+          fi
+
       - name: Run Expo Prebuild (iOS)
-        run: npx expo prebuild --platform ios --no-install
+        run: |
+          npx expo prebuild --platform ios --clean
 
       - name: Install CocoaPods
         run: |
           cd ios
-          pod install
+          pod install --repo-update
 
       - name: Commit generated iOS folder
         run: |
